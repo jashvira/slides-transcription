@@ -4,9 +4,8 @@ import zipfile
 from argparse import Namespace
 from xml.etree import ElementTree as ET
 
-from gooey import Gooey
 from pptx import Presentation
-import whisper
+import openai
 
 from .cli import build_parser
 
@@ -41,18 +40,30 @@ def extract_slide_audio(pptx_path: str, temp_dir: str):
 
 def run(args: Namespace):
     os.makedirs(args.output, exist_ok=True)
+    openai.api_key = args.api_key or os.getenv("OPENAI_API_KEY")
+    if not openai.api_key:
+        print("OpenAI API key required. Use --api-key or set OPENAI_API_KEY.")
+        return
+
     with tempfile.TemporaryDirectory() as tmpdir:
         audio_files = list(extract_slide_audio(args.pptx, tmpdir))
         if not audio_files:
             print("No audio found in PPTX")
             return
-        model = whisper.load_model(args.model)
         for idx, track_idx, audio_path in audio_files:
-            result = model.transcribe(
-                audio_path,
-                language=args.language,
-                task=args.task,
-            )
+            with open(audio_path, "rb") as audio_file:
+                if args.task == "translate":
+                    result = openai.Audio.translate(
+                        model=args.model,
+                        file=audio_file,
+                        language=args.language,
+                    )
+                else:
+                    result = openai.Audio.transcribe(
+                        model=args.model,
+                        file=audio_file,
+                        language=args.language,
+                    )
             text = result.get("text", "").strip()
             out_name = f"{args.prefix}{idx}_{track_idx}.txt"
             out_file = os.path.join(args.output, out_name)
@@ -68,6 +79,8 @@ def main(argv=None):
 
     if "--gui" in argv:
         argv.remove("--gui")
+
+        from gooey import Gooey
 
         @Gooey(program_name="Slides Transcriber")
         def _gui_main():
