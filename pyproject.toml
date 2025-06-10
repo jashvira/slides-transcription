@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "slides-transcriber"
 version = "0.1.0"
-description = "Transcribe audio from PowerPoint slides using Whisper"
+description = "Transcribe audio from PowerPoint slides using OpenAI STT"
 authors = [{name="Jash Vira"}]
 requires-python = ">=3.8"
 dependencies = [
     "python-pptx",
-    "openai-whisper",
+    "openai",
     "gooey>=1.0",
 ]
 
