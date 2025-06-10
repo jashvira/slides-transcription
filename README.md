@@ -83,3 +83,41 @@ This produces `dist/transcribe-slides.exe` and `dist/SlidesTranscriberSetup.exe`
 ## License
 
 This project is released under the MIT License.
+
+## For GUI Users
+
+**How to Use the Slides Transcriber App (with a graphical interface):**
+
+1. **Open the App**
+   - Double-click the "Slides Transcriber" icon on your desktop, or run the program as you normally would.
+
+2. **Select Your PowerPoint Files**
+   - Click the "Browse" or "Add" button.
+   - Choose a folder to process all presentations inside it.
+
+3. **Choose an Output Folder**
+   - Click the "Output" or "Destination" field.
+   - Pick a folder where you want the transcribed text files to be saved.
+
+4. **Enter Your OpenAI API Key**
+   - You need an OpenAI API key to use the transcription service.
+   - If you don't have one, get it from: https://platform.openai.com/api-keys
+   - Copy and paste your API key into the "API Key" field.
+
+5. **Start the Transcription**
+   - Click the "Start" or "Transcribe" button.
+   - The app will show you progress as it works through your slides.
+   - You'll see messages like "Processing file 1/3: MySlides.pptx (Slide 5/20)" so you know what's happening.
+
+6. **Wait for Completion**
+   - When finished, you'll see a message that all files are processed.
+   - Your transcribed text files will be in the output folder you chose.
+
+**If you see any error messages:**
+- Make sure you entered your API key correctly.
+- Make sure your PowerPoint files have audio and are not corrupted.
+- If you have questions, contact your support person.
+
+---
+
+**No technical knowledge is needed—just follow the steps above!**
