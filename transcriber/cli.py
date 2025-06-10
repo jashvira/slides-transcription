@@ -11,6 +11,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Whisper model name or path (default: base)",
     )
     parser.add_argument(
+        "--language",
+        default="en",
+        help="Language spoken in the audio (default: en)",
+    )
+    parser.add_argument(
+        "--task",
+        default="transcribe",
+        choices=["transcribe", "translate"],
+        help="Whisper task to perform (default: transcribe)",
+    )
+    parser.add_argument(
+        "--prefix",
+        default="slide",
+        help="Filename prefix for transcripts (default: slide)",
+    )
+    parser.add_argument(
         "--gui",
         action="store_true",
         help="Launch a GUI instead of the CLI",
