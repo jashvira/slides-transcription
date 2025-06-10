@@ -1,7 +1,8 @@
+"""Utilities for extracting and transcribing slide audio."""
+
 import os
 import tempfile
 import zipfile
-from argparse import Namespace
 from xml.etree import ElementTree as ET
 from collections import defaultdict
 
@@ -101,6 +102,8 @@ def transcribe_slides(pptx_path: str, output_dir: str, model: str = "whisper-1",
 
 
 def main(argv=None):
+    """Run the application using command-line arguments."""
+
     from transcriber.cli import build_parser
     parser = build_parser()
     if argv is None:

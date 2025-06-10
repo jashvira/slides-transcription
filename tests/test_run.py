@@ -1,7 +1,6 @@
 import os
 import sys
 from argparse import Namespace
-from io import StringIO
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from transcriber.transcribe_slides import run
