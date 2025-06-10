@@ -37,7 +37,7 @@ The available options are:
 
 ### Models and Pricing
 
-Currently, OpenAI only provides the Whisper-1 model for speech-to-text tasks. Here are the details:
+OpenAI provides the Whisper-1 model for speech-to-text tasks at a reasonable price. Here are the details:
 
 #### Whisper-1
 - Cost: $0.006 per minute of audio
