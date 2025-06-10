@@ -27,13 +27,46 @@ Add `--gui` to launch a GUI instead of the CLI.
 
 The available options are:
 
-* `--model` – OpenAI STT model name.
-* `--language` – language spoken in the audio.
-* `--task` – transcription task (`transcribe` or `translate`).
-* `--prefix` – prefix used when naming transcript files.
-* `--api-key` – OpenAI API key (or set `OPENAI_API_KEY`).
+* `--model` – OpenAI STT model name (currently only whisper-1 is available)
+* `--language` – language spoken in the audio
+* `--task` – transcription task (`transcribe` or `translate`)
+* `--prefix` – prefix used when naming transcript files
+* `--api-key` – OpenAI API key (or set `OPENAI_API_KEY`)
 
-The tool extracts audio from each slide and writes a text file per slide inside the `output_dir` folder (`slide1.txt`, `slide2.txt`, ...).
+### Models and Pricing
+
+Currently, OpenAI only provides the Whisper-1 model for speech-to-text tasks. Here are the details:
+
+#### Whisper-1
+- Cost: $0.006 per minute of audio
+- Features:
+  - Automatic language detection
+  - Supports multiple languages
+  - Handles different accents and dialects
+  - Good at handling background noise
+  - Supports both transcription and translation
+- Limitations:
+  - Maximum file size: 25MB
+  - Maximum audio length: 25MB per file
+  - No real-time streaming (batch processing only)
+  - No custom model training available
+
+For more details about the model and its capabilities, visit the [OpenAI Speech-to-Text documentation](https://platform.openai.com/docs/guides/speech-to-text).
+
+### Output Format
+
+The tool extracts audio from each slide and writes a text file per slide inside the `output_dir` folder (`slide1.txt`, `slide2.txt`, etc.). If a slide has multiple audio tracks, they are combined into a single file with clear track labeling:
+
+```
+Track 1 of 3:
+[transcription text]
+
+Track 2 of 3:
+[transcription text]
+
+Track 3 of 3:
+[transcription text]
+```
 
 ### Building the Windows installer
 
