@@ -1,7 +1,6 @@
 import os
 import tempfile
 import zipfile
-from argparse import Namespace
 from xml.etree import ElementTree as ET
 from collections import defaultdict
 
@@ -100,42 +99,47 @@ def transcribe_slides(pptx_path: str, output_dir: str, model: str = "whisper-1",
             print(f"\nAll transcriptions saved to: {out_file}")
 
 
+def run(args) -> None:
+    """Execute the transcription with an argparse ``Namespace``."""
+    transcribe_slides(
+        args.pptx,
+        args.output,
+        model=args.model,
+        language=args.language,
+        task=args.task,
+        prefix=args.prefix,
+        api_key=args.api_key,
+    )
+
+
 def main(argv=None):
-    from transcriber.cli import build_parser
-    parser = build_parser()
+    from transcriber.parser import build_parser
+    try:
+        from gooey import Gooey
+    except Exception:  # pragma: no cover - Gooey is optional
+        Gooey = None  # type: ignore
+
     if argv is None:
         argv = os.sys.argv[1:]
 
-    if "--gui" in argv:
+    gui_mode = "--gui" in argv
+    if gui_mode:
         argv.remove("--gui")
-
-        from gooey import Gooey
+    if gui_mode:
+        if Gooey is None:
+            raise RuntimeError("Gooey must be installed to use the GUI")
 
         @Gooey(program_name="Slides Transcriber")
         def _gui_main():
+            parser = build_parser(gui=True)
             args = parser.parse_args(argv)
-            transcribe_slides(
-                args.pptx,
-                args.output,
-                model=args.model,
-                language=args.language,
-                task=args.task,
-                prefix=args.prefix,
-                api_key=args.api_key
-            )
+            run(args)
 
         _gui_main()
     else:
+        parser = build_parser(gui=False)
         args = parser.parse_args(argv)
-        transcribe_slides(
-            args.pptx,
-            args.output,
-            model=args.model,
-            language=args.language,
-            task=args.task,
-            prefix=args.prefix,
-            api_key=args.api_key
-        )
+        run(args)
 
 
 if __name__ == "__main__":
