@@ -48,27 +48,35 @@ def run(args: Namespace):
             return
         model = whisper.load_model(args.model)
         for idx, track_idx, audio_path in audio_files:
-            result = model.transcribe(audio_path)
+            result = model.transcribe(
+                audio_path,
+                language=args.language,
+                task=args.task,
+            )
             text = result.get("text", "").strip()
-            out_name = f"slide{idx}_{track_idx}.txt"
+            out_name = f"{args.prefix}{idx}_{track_idx}.txt"
             out_file = os.path.join(args.output, out_name)
             with open(out_file, "w", encoding="utf-8") as f:
                 f.write(text)
             print(f"Transcribed slide {idx} track {track_idx} -> {out_file}")
 
 
-def main():
-    if "--gui" in os.sys.argv:
+def main(argv=None):
+    parser = build_parser()
+    if argv is None:
+        argv = os.sys.argv[1:]
+
+    if "--gui" in argv:
+        argv.remove("--gui")
+
         @Gooey(program_name="Slides Transcriber")
         def _gui_main():
-            parser = build_parser()
-            args = parser.parse_args()
+            args = parser.parse_args(argv)
             run(args)
 
         _gui_main()
     else:
-        parser = build_parser()
-        args = parser.parse_args()
+        args = parser.parse_args(argv)
         run(args)
 
 
