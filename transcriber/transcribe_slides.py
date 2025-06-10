@@ -2,6 +2,7 @@ import os
 import tempfile
 import zipfile
 from argparse import Namespace
+from xml.etree import ElementTree as ET
 
 from gooey import Gooey
 from pptx import Presentation
@@ -11,30 +12,31 @@ from .cli import build_parser
 
 
 def extract_slide_audio(pptx_path: str, temp_dir: str):
-    """Extract audio files from a PPTX and yield (index, path) tuples."""
+    """Extract audio files from a PPTX and yield (slide, track, path) tuples."""
     prs = Presentation(pptx_path)
-    z = zipfile.ZipFile(pptx_path)
-    for idx, slide in enumerate(prs.slides, start=1):
-        rels_name = f"ppt/slides/_rels/slide{idx}.xml.rels"
-        if rels_name not in z.namelist():
-            continue
-        with z.open(rels_name) as rels_file:
-            content = rels_file.read().decode("utf-8")
-        # Very naive search for media targets
-        for line in content.splitlines():
-            if "media" in line and "Target" in line:
-                target = line.split("Target=")[-1].split('"')[1]
-                if not target.startswith(".."):
-                    media_path = f"ppt/slides/{target}"
-                else:
-                    media_path = target.replace("../", "ppt/")
+    with zipfile.ZipFile(pptx_path) as z:
+        for idx, _ in enumerate(prs.slides, start=1):
+            rels_name = f"ppt/slides/_rels/slide{idx}.xml.rels"
+            if rels_name not in z.namelist():
+                continue
+            with z.open(rels_name) as rels_file:
+                tree = ET.parse(rels_file)
+            for track_idx, rel in enumerate(tree.getroot(), start=1):
+                rel_type = rel.attrib.get("Type", "").lower()
+                if "audio" not in rel_type:
+                    continue
+                target = rel.attrib.get("Target")
+                if not target:
+                    continue
+                rel_dir = os.path.dirname(rels_name)
+                media_path = os.path.normpath(os.path.join(rel_dir, target))
                 if media_path not in z.namelist():
                     continue
                 ext = os.path.splitext(media_path)[1]
-                out_path = os.path.join(temp_dir, f"slide{idx}{ext}")
+                out_path = os.path.join(temp_dir, f"slide{idx}_{track_idx}{ext}")
                 with z.open(media_path) as media_file, open(out_path, "wb") as out:
                     out.write(media_file.read())
-                yield idx, out_path
+                yield idx, track_idx, out_path
 
 
 def run(args: Namespace):
@@ -45,20 +47,29 @@ def run(args: Namespace):
             print("No audio found in PPTX")
             return
         model = whisper.load_model(args.model)
-        for idx, audio_path in audio_files:
+        for idx, track_idx, audio_path in audio_files:
             result = model.transcribe(audio_path)
             text = result.get("text", "").strip()
-            out_file = os.path.join(args.output, f"slide{idx}.txt")
+            out_name = f"slide{idx}_{track_idx}.txt"
+            out_file = os.path.join(args.output, out_name)
             with open(out_file, "w", encoding="utf-8") as f:
                 f.write(text)
-            print(f"Transcribed slide {idx} -> {out_file}")
+            print(f"Transcribed slide {idx} track {track_idx} -> {out_file}")
 
 
-@Gooey(program_name="Slides Transcriber")
 def main():
-    parser = build_parser()
-    args = parser.parse_args()
-    run(args)
+    if "--gui" in os.sys.argv:
+        @Gooey(program_name="Slides Transcriber")
+        def _gui_main():
+            parser = build_parser()
+            args = parser.parse_args()
+            run(args)
+
+        _gui_main()
+    else:
+        parser = build_parser()
+        args = parser.parse_args()
+        run(args)
 
 
 if __name__ == "__main__":
