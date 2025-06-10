@@ -2,6 +2,8 @@
 
 A simple tool that extracts audio from Microsoft PowerPoint presentations and transcribes each slide using the [OpenAI Speech to Text API](https://platform.openai.com/docs/guides/speech-to-text). A minimal GUI can be launched via [Gooey](https://github.com/chriskiehl/Gooey).
 
+Vibecoded this since a non-technical friend needed it for their work.
+
 ## Installation
 
 Install the package using `pip` (preferably in a virtual environment):
