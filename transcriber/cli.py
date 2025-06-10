@@ -1,3 +1,5 @@
+"""Command line interface for transcribing slide audio."""
+
 import argparse
 import os
 from gooey import Gooey, GooeyParser
@@ -5,6 +7,8 @@ from transcriber.transcribe_slides import transcribe_slides
 
 
 def build_parser():
+    """Return an argument parser for the CLI."""
+
     parser = argparse.ArgumentParser(
         description="Transcribe slide audio using the OpenAI Speech to Text API"
     )
@@ -52,6 +56,8 @@ def build_parser():
     navigation='TABBED'
 )
 def main():
+    """Entry point for the GUI/CLI application."""
+
     parser = GooeyParser(description="Transcribe audio from PowerPoint slides")
 
     # Input/Output group
