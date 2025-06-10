@@ -1,9 +1,18 @@
 import argparse
 
+try:
+    from gooey import GooeyParser  # type: ignore
+except Exception:
+    GooeyParser = None
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Transcribe slide audio using the OpenAI Speech to Text API"
+
+def build_parser(for_gui: bool = False) -> argparse.ArgumentParser:
+    """Return an ArgumentParser or GooeyParser depending on ``for_gui``."""
+
+    Parser = GooeyParser if for_gui and GooeyParser else argparse.ArgumentParser
+
+    parser = Parser(
+        description="Transcribe slide audio using the OpenAI Speech to Text API",
     )
     parser.add_argument("pptx", help="Path to PPTX file")
     parser.add_argument("output", help="Output directory for transcripts")
@@ -28,11 +37,17 @@ def build_parser() -> argparse.ArgumentParser:
         default="slide",
         help="Filename prefix for transcripts (default: slide)",
     )
-    parser.add_argument(
-        "--api-key",
-        help="OpenAI API key (defaults to OPENAI_API_KEY env var)",
-        widget="PasswordField",
-    )
+    if for_gui and GooeyParser:
+        parser.add_argument(
+            "--api-key",
+            help="OpenAI API key (defaults to OPENAI_API_KEY env var)",
+            widget="PasswordField",
+        )
+    else:
+        parser.add_argument(
+            "--api-key",
+            help="OpenAI API key (defaults to OPENAI_API_KEY env var)",
+        )
     parser.add_argument(
         "--gui",
         action="store_true",
